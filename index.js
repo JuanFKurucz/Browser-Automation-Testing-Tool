@@ -1,16 +1,9 @@
 const {app} = require("electron");
 const windowCreator = require(__dirname+"/windowCreator.js");
-
+let mainWindow;
 
 function init(){
-	var data={
-		title:"Example window",
-		width:800,
-		height:600,
-		script:__dirname+'/script.js'
-	};
-	let window = windowCreator.create(data);
-	window.loadURL("http://www.google.com/");
+	mainWindow = windowCreator.create(__dirname+'/config.json');
 }
 
 app.on('ready', function(){
