@@ -1,7 +1,0 @@
-{
-  "title":"Example window",
-  "width":800,
-  "height":600,
-  "scripts":["/script.js","/script0.js"],
-  "url":"http://www.google.com/"
-}

@@ -2,8 +2,12 @@ const {BrowserWindow} = require("electron");
 const fs = require('fs');
 function generateScriptFile(title,scripts,folder,callback){
   var text="";
-  for(var i=0;i<scripts.length;i++){
-    text+="require('"+folder.replace(/\\/g,"/")+scripts[i].replace(/\\/g,"/")+"');\n";
+  if(typeof scripts != "string"){
+    for(var i=0;i<scripts.length;i++){
+      text+="require('"+folder.replace(/\\/g,"/")+scripts[i].replace(/\\/g,"/")+"');\n";
+    }
+  } else {
+    text+="require('"+folder.replace(/\\/g,"/")+scripts.replace(/\\/g,"/")+"');\n";
   }
   fs.writeFile(folder+"/"+title.replace(/ /g,"-")+"-script.js",text, function(err) {
       if(err) {
@@ -13,13 +17,23 @@ function generateScriptFile(title,scripts,folder,callback){
   });
 }
 
-function readConfig(configFile,callback){
-  fs.readFile(configFile, 'utf8', function (err, data) {
+function readConfig(folderPath,callback){
+  fs.readFile(folderPath+"/config.json", 'utf8', function (err, data) {
     if (err) throw err;
     var obj=JSON.parse(data);
-    obj.folder = configFile.replace("/config.json","");
+    obj.folder = folderPath;
     callback(obj);
   });
+}
+
+function ValidURL(str) {
+  //https://stackoverflow.com/a/30229098
+  var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+  if(!regex .test(str)) {
+    return false;
+  } else {
+    return true;
+  }
 }
 
 function createWindow(data){
@@ -33,12 +47,16 @@ function createWindow(data){
       }
     }
   )
-  mainWindow.loadURL(data.url);
+  if(ValidURL(data.url)){
+    mainWindow.loadURL(data.url);
+  } else {
+    mainWindow.loadURL(data.folder+"/"+data.url);
+  }
   return mainWindow
 }
 
-exports.create=function(configFile){
-  var data = readConfig(configFile,function(data){
+exports.create=function(folderPath){
+  var data = readConfig(folderPath,function(data){
     generateScriptFile(data.title,data.scripts,data.folder,function(){
       return createWindow(data);
     });

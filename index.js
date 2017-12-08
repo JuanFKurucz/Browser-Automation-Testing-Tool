@@ -3,7 +3,7 @@ const windowCreator = require(__dirname+"/windowCreator.js");
 let mainWindow;
 
 function init(){
-	mainWindow = windowCreator.create(__dirname+'/config.json');
+	mainWindow = windowCreator.create(__dirname+'/GUI/');
 }
 
 app.on('ready', function(){
