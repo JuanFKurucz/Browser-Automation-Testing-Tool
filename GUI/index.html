@@ -1,8 +1,8 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<!--  <link rel="stylesheet" href="style/bootstrap.min.css">
-  <script src="src/bootstrap.min.js"></script>-->
+  <link rel="stylesheet" href="style/bootstrap.min.css">
+  <script src="src/bootstrap.min.js"></script>
   <style>
     .list {
       list-style: none;
@@ -36,31 +36,6 @@
     <div class="row">
       <div class="col-sm-2" style="background-color:yellow;height:450px;">
         <div class="folders">
-          <div class="Folder1">
-
-            <span class="title">Folder 1 <span class="folderShow"></span></span>
-            <ul class="list files">
-              <li>File1.js</l1>
-              <li>File2.js</l1>
-              <li>File3.js</l1>
-            </ul>
-          </div>
-          <div class="Folder2">
-            <span class="title">Folder 2 <span class="folderShow"></span></span>
-            <ul class="list files">
-              <li>File1.js</l1>
-              <li>File2.js</l1>
-              <li>File3.js</l1>
-            </ul>
-          </div>
-          <div class="Folder3">
-            <span class="title">Folder 3 <span class="folderShow"></span></span>
-            <ul class="list files">
-              <li>File1.js</l1>
-              <li>File2.js</l1>
-              <li>File3.js</l1>
-            </ul>
-          </div>
         </div>
       </div>
       <div class="col-sm-10" style="margin:0;padding:0;">
@@ -75,19 +50,4 @@
     </div>
 </div>
 </body>
-<script>
-  var folderShowButtons = document.getElementsByClassName("title");
-  for(var i=0;i<folderShowButtons.length;i++){
-    folderShowButtons[i].getElementsByClassName("folderShow")[0].textContent="⇧";
-    folderShowButtons[i].onclick=function(){
-      if(this.getElementsByClassName("folderShow")[0].textContent=="⇧"){
-        this.getElementsByClassName("folderShow")[0].textContent="⇩";
-        this.parentElement.getElementsByClassName("files")[0].style.display="none";
-      } else {
-        this.getElementsByClassName("folderShow")[0].textContent="⇧";
-        this.parentElement.getElementsByClassName("files")[0].style.display="";
-      }
-    }
-  }
-</script>
 </html>

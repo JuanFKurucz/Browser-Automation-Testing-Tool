@@ -1,4 +1,5 @@
 const {BrowserWindow} = require("electron");
+const {noSpace} = require("./transformName.js");
 const fs = require('fs');
 function generateScriptFile(title,scripts,folder,callback){
   var text="";
@@ -10,7 +11,7 @@ function generateScriptFile(title,scripts,folder,callback){
   } else {
     text+="require('"+folderR+scripts+"');\n";
   }
-  fs.writeFile(folder+"/"+title.replace(/ /g,"-")+"-script.js",text, function(err) {
+  fs.writeFile(folder+"/"+noSpace(title)+"-script.js",text, function(err) {
       if(err) {
           return console.log(err);
       }
@@ -23,7 +24,7 @@ function readConfig(folderPath,callback){
     if (err) throw err;
     var obj=JSON.parse(data);
     obj.folder = folderPath;
-    obj.webPreferences.preload=folderPath+obj.title.replace(/ /g,"-")+"-script.js";
+    obj.webPreferences.preload=folderPath+noSpace(obj.title)+"-script.js";
     callback(obj);
   });
 }
@@ -41,24 +42,10 @@ function ValidURL(str) {
 function createWindow(data){
   console.log(data);
   let mainWindow = new BrowserWindow(data);
-  /*
-  {
-    title:data.title,
-    width: data.width,
-    height: data.height,
-    webPreferences: {
-      preload:data.folder+"/"+data.title.replace(/ /g,"-")+"-script.js"
-    }
-  }
-  */
-
   if(ValidURL(data.url)){
     mainWindow.loadURL(data.url);
   } else {
     mainWindow.loadURL(data.folder+data.url);
-  }
-  for(var key in mainWindow){
-    console.log(key);
   }
   return mainWindow
 }
