@@ -2,12 +2,13 @@ const {BrowserWindow} = require("electron");
 const fs = require('fs');
 function generateScriptFile(title,scripts,folder,callback){
   var text="";
+  var folderR=folder.replace(/\\/g,"\\\\");
   if(typeof scripts != "string"){
     for(var i=0;i<scripts.length;i++){
-      text+="require('"+folder.replace(/\\/g,"/")+scripts[i].replace(/\\/g,"/")+"');\n";
+      text+="require('"+folderR+scripts[i]+"');\n";
     }
   } else {
-    text+="require('"+folder.replace(/\\/g,"/")+scripts.replace(/\\/g,"/")+"');\n";
+    text+="require('"+folderR+scripts+"');\n";
   }
   fs.writeFile(folder+"/"+title.replace(/ /g,"-")+"-script.js",text, function(err) {
       if(err) {
@@ -18,10 +19,11 @@ function generateScriptFile(title,scripts,folder,callback){
 }
 
 function readConfig(folderPath,callback){
-  fs.readFile(folderPath+"/config.json", 'utf8', function (err, data) {
+  fs.readFile(folderPath+"\\config.json", 'utf8', function (err, data) {
     if (err) throw err;
     var obj=JSON.parse(data);
     obj.folder = folderPath;
+    obj.webPreferences.preload=folderPath+obj.title.replace(/ /g,"-")+"-script.js";
     callback(obj);
   });
 }
@@ -37,20 +39,26 @@ function ValidURL(str) {
 }
 
 function createWindow(data){
-  let mainWindow = new BrowserWindow(
-    {
-      title:data.title,
-      width: data.width,
-      height: data.height,
-      webPreferences: {
-        preload:data.folder+"/"+data.title.replace(/ /g,"-")+"-script.js"
-      }
+  console.log(data);
+  let mainWindow = new BrowserWindow(data);
+  /*
+  {
+    title:data.title,
+    width: data.width,
+    height: data.height,
+    webPreferences: {
+      preload:data.folder+"/"+data.title.replace(/ /g,"-")+"-script.js"
     }
-  )
+  }
+  */
+
   if(ValidURL(data.url)){
     mainWindow.loadURL(data.url);
   } else {
-    mainWindow.loadURL(data.folder+"/"+data.url);
+    mainWindow.loadURL(data.folder+data.url);
+  }
+  for(var key in mainWindow){
+    console.log(key);
   }
   return mainWindow
 }

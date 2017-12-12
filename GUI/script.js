@@ -1,1 +1,1 @@
-alert("p");
+console.log('hola');

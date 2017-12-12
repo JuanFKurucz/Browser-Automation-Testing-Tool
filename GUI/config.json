@@ -1,7 +1,8 @@
 {
-  "title":"Browser Automation Testing Tool",
   "width":800,
   "height":600,
-  "scripts":"/script.js",
-  "url":"index.html"
+  "title":"Browser Automation Testing Tool",
+  "scripts":"script.js",
+  "url":"index.html",
+  "webPreferences":{}
 }
