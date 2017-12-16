@@ -6,12 +6,12 @@ function generateScriptFile(title,scripts,folder,callback){
   var folderR=folder.replace(/\\/g,"\\\\");
   if(typeof scripts != "string"){
     for(var i=0;i<scripts.length;i++){
-      text+="require('"+folderR+scripts[i]+"');\n";
+      text+="require('"+folderR+"\\\\"+scripts[i].replace(/\//g,"\\\\")+"');\n";
     }
   } else {
-    text+="require('"+folderR+scripts+"');\n";
+    text+="require('"+folderR+"\\\\"+scripts.replace(/\//g,"\\\\")+"');\n";
   }
-  fs.writeFile(folder+"/"+noSpace(title)+"-script.js",text, function(err) {
+  fs.writeFile(folder+"\\"+noSpace(title)+"-script.js",text, function(err) {
       if(err) {
           return console.log(err);
       }
@@ -24,7 +24,7 @@ function readConfig(folderPath,callback){
     if (err) throw err;
     var obj=JSON.parse(data);
     obj.folder = folderPath;
-    obj.webPreferences.preload=folderPath+noSpace(obj.title)+"-script.js";
+    obj.webPreferences.preload=folderPath+"\\"+noSpace(obj.title)+"-script.js";
     callback(obj);
   });
 }

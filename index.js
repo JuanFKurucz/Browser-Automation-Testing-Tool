@@ -1,9 +1,14 @@
 const {app} = require("electron");
+const {ipcMain} = require('electron');
 const windowCreator = require(__dirname+"/windowCreator.js");
 let mainWindow;
-
+var path = require('path');
+var appDir = path.dirname(require.main.filename);
 function init(){
-	mainWindow = windowCreator.create(__dirname+'/GUI/');
+	mainWindow = windowCreator.create(appDir+'\\GUI\\');
+	ipcMain.on('createWindow', (event, arg) => {
+	  windowCreator.create(appDir+arg);
+	})
 }
 
 app.on('ready', function(){

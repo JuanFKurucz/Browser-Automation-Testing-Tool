@@ -1,7 +1,13 @@
-console.log('hola');
 const fs = require('fs');
 const {noSpace} = require("../transformName.js");
 const Folder = './Projects/';
+const {ipcRenderer} = require('electron')
+
+function init(){
+  document.querySelector("#startButton").onclick=function(){
+    ipcRenderer.send('createWindow', "\\Projects\\"+this.getAttribute("project"))
+  }
+}
 
 function createDOMProject(path,name,cont){
   var container,type;
@@ -18,21 +24,28 @@ function createDOMProject(path,name,cont){
 
   var newSpan = document.createElement("span");
   newSpan.textContent=name;
-  newSpan.setAttribute("class","title");
   newSpan.onclick=function(){
-    if(this.children[0].textContent=="⇧"){
-      this.children[0].textContent="⇩";
-      this.parentElement.children[1].style.display="none";
-    } else {
-      this.children[0].textContent="⇧";
-      this.parentElement.children[1].style.display="";
-    }
+    //Set info to buttons
+    document.querySelector("#startButton").setAttribute("project",name);
+    document.querySelector("#stopButton").setAttribute("project",name);
+    document.querySelector("#projecTitle").textContent=name;
   }
+  newSpan.setAttribute("class","title");
+
   newDiv.appendChild(newSpan);
   var childSpan = document.createElement("span");
   childSpan.setAttribute("class","folderShow");
   childSpan.textContent="⇧";
-  newSpan.appendChild(childSpan);
+  childSpan.onclick=function(){
+    if(this.textContent=="⇧"){
+      this.textContent="⇩";
+      this.parentElement.children[2].style.display="none";
+    } else {
+      this.textContent="⇧";
+      this.parentElement.children[2].style.display="";
+    }
+  }
+  newDiv.appendChild(childSpan);
 
   var newList = document.createElement("ul");
   newList.setAttribute("class","list files");
@@ -47,12 +60,23 @@ function createDOMProject(path,name,cont){
   })
 }
 
+var path = require('path');
+var projectsDir = path.dirname(require.main.filename).replace("GUI","Projects");
 function createDOMFile(name,parent){
   if(parent==null){
     console.log('die');
   } else {
     var newLi = document.createElement("li");
     newLi.textContent = name;
+    newLi.onclick=function(){
+      fs.readFile(projectsDir+"\\"+parent.parentElement.querySelector(".title").textContent+"\\"+name, function read(err, data) {
+        if (err) {
+            throw err;
+        }
+        document.querySelector("#codeEditor").textContent=data;
+    });
+
+    }
     parent.appendChild(newLi);
   }
 }
@@ -80,6 +104,7 @@ function searchProjects(){
 
 document.onreadystatechange = function () {
   if (document.readyState == "complete") {
+    init();
     searchProjects();
   }
 }
