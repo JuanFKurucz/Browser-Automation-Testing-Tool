@@ -4,14 +4,51 @@
   <link rel="stylesheet" href="style/bootstrap.min.css">
   <script src="src/bootstrap.min.js"></script>
   <style>
-    .list {
+    .list,.title {
       list-style: none;
       margin:0;
       padding-left:10px;
     }
+    .file,.folder{
+    }
+    .folders{
+      width:115%;
+      height:100%;
+      overflow: scroll;
+    }
     .title {
       font-size:18px;
       font-weight: bold;
+    }
+    .project:before,.file:before ,.folder:before  {
+      content: " ";
+      width:25px;
+      height:25px;
+      cursor:pointer;
+    }
+    .folder:before{
+      content: "{F}";
+      /*background:url("img/folder.png") no-repeat;
+      background-size: 25px 20px;*/
+    }
+    .file:before{
+      content: "{f} ";
+      /*
+      background:url("img/file.png") no-repeat;
+      background-size: 25px 20px;
+      */
+    }
+    .project:before {
+      content: "{P}";
+      /*background:url("img/project.png") no-repeat;
+      background-size: 25px 20px;
+      */
+    }
+
+    .title,.file{
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
     }
   </style>
 </head>
@@ -35,7 +72,7 @@
 
   <div class="container" style="width:100%;height:100%;">
     <div class="row">
-      <div class="col-sm-4" style="background-color:yellow;height:450px;">
+      <div class="col-sm-4" style="height:450px;">
         <div class="folders">
         </div>
       </div>

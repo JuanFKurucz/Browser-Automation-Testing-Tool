@@ -9,47 +9,52 @@ function init(){
   }
 }
 
+
 function createDOMProject(path,name,cont){
-  var container,type;
+  var container,type,clase;
   if(cont==null){
     container = document.getElementsByClassName("folders")[0];
-    type="div"
+    type="div";
+    clase="project";
   } else {
     container=cont;
     type="li";
+    clase="folder"
   }
   var newDiv = document.createElement(type);
-  newDiv.setAttribute("class",noSpace(name));
+  newDiv.setAttribute("class",clase+" "+noSpace(name));
   container.appendChild(newDiv);
+
+
+
 
   var newSpan = document.createElement("span");
   newSpan.textContent=name;
-  newSpan.onclick=function(){
-    //Set info to buttons
-    document.querySelector("#startButton").setAttribute("project",name);
-    document.querySelector("#stopButton").setAttribute("project",name);
-    document.querySelector("#projecTitle").textContent=name;
+  if(cont==null){
+    newSpan.onclick=function(){
+      //Set info to buttons
+      document.querySelector("#startButton").setAttribute("project",name);
+      document.querySelector("#stopButton").setAttribute("project",name);
+      document.querySelector("#projecTitle").textContent=name;
+    }
   }
   newSpan.setAttribute("class","title");
 
   newDiv.appendChild(newSpan);
-  var childSpan = document.createElement("span");
-  childSpan.setAttribute("class","folderShow");
-  childSpan.textContent="⇧";
-  childSpan.onclick=function(){
-    if(this.textContent=="⇧"){
-      this.textContent="⇩";
-      this.parentElement.children[2].style.display="none";
-    } else {
-      this.textContent="⇧";
-      this.parentElement.children[2].style.display="";
-    }
-  }
-  newDiv.appendChild(childSpan);
 
   var newList = document.createElement("ul");
   newList.setAttribute("class","list files");
   newDiv.appendChild(newList);
+
+  newDiv.addEventListener('click', function (e) {
+    if (e.clientX < newSpan.getBoundingClientRect().left&&e.clientY < newSpan.getBoundingClientRect().bottom) {
+      if(newList.style.display!="none"){
+        newList.style.display="none";
+      } else {
+        newList.style.display="";
+      }
+    }
+  });
 
   searchInsideFolder(path+name+"/",function(file,data){
     if(data!=undefined&&data.isDirectory()){
@@ -67,7 +72,8 @@ function createDOMFile(name,parent){
     console.log('die');
   } else {
     var newLi = document.createElement("li");
-    newLi.textContent = name;
+
+    newLi.setAttribute("class","file");
     newLi.onclick=function(){
       fs.readFile(projectsDir+"\\"+parent.parentElement.querySelector(".title").textContent+"\\"+name, function read(err, data) {
         if (err) {
@@ -78,6 +84,7 @@ function createDOMFile(name,parent){
 
     }
     parent.appendChild(newLi);
+    newLi.textContent += name;
   }
 }
 
