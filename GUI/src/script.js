@@ -7,6 +7,12 @@ function init(){
   document.querySelector("#startButton").onclick=function(){
     ipcRenderer.send('createWindow', "\\Projects\\"+this.getAttribute("project"))
   }
+  document.querySelector("#MinimizeProgram").onclick=function(){
+    ipcRenderer.send('MinimizeProgram')
+  }
+  document.querySelector("#CloseProgram").onclick=function(){
+    ipcRenderer.send('CloseProgram')
+  }
 }
 
 
@@ -65,10 +71,7 @@ function createDOMProject(path,name,cont){
   })
 }
 
-function createNewRow(table,text1="",text2=""){
-  var tr = document.createElement("tr");
-  table.appendChild(tr);
-
+function createKeyRow(tr,text1=""){
   var td1= document.createElement("td");
   tr.appendChild(td1);
 
@@ -77,16 +80,19 @@ function createNewRow(table,text1="",text2=""){
   input1.style="width:100%";
   input1.value=text1;
   td1.appendChild(input1);
+}
+function createTypeRow(tr,text1=""){
+  var td1= document.createElement("td");
+  tr.appendChild(td1);
+  td1.style="width:75px;";
+  var input1 = document.createElement("input");
+  input1.type="text";
+  input1.style="width:100%";
+  input1.value=text1;
+  td1.appendChild(input1);
+}
 
-  var td2= document.createElement("td");
-  tr.appendChild(td2);
-
-  var input2 = document.createElement("input");
-  input2.type="text";
-  input2.style="width:100%";
-  input2.value=text2;
-  td2.appendChild(input2);
-
+function createDeleteRow(tr){
   var td3= document.createElement("td");
   tr.appendChild(td3);
 
@@ -95,9 +101,70 @@ function createNewRow(table,text1="",text2=""){
   input3.style="width:100%";
   input3.value="Delete";
   input3.onclick=function(){
-    table.removeChild(tr);
+    tr.parentElement.removeChild(tr);
   }
   td3.appendChild(input3);
+}
+
+function createNewRow(tr,text2=""){
+  var td2= document.createElement("td");
+  tr.appendChild(td2);
+  var input2 = document.createElement("input");
+  input2.type="text";
+  input2.style="width:100%";
+  input2.value=text2;
+  td2.appendChild(input2);
+}
+
+function createNewTable(tr,key,obj){
+  var newTr=document.createElement("tr");
+  tr.parentElement.appendChild(newTr);
+
+  var emptyTd=document.createElement("td");
+  newTr.appendChild(emptyTd);
+
+  var tableTD=document.createElement("td");
+  tableTD.setAttribute("colspan","2");
+  newTr.appendChild(tableTD);
+  var smallTable= document.createElement("table");
+  tableTD.appendChild(smallTable);
+
+
+  var td2= document.createElement("td");
+  tr.appendChild(td2);
+  var inputAdd = document.createElement("input");
+  inputAdd.type="submit";
+  inputAdd.value="Add";
+  inputAdd.style.width="100%";
+  inputAdd.onclick=function(){
+    var tr = document.createElement("tr");
+    smallTable.appendChild(tr);
+    createKeyRow(tr);
+    createNewRow(tr);
+    createDeleteRow(tr);
+  }
+  td2.appendChild(inputAdd);
+  console.log(obj);
+  createTableFromJson(smallTable,obj);
+}
+
+function createTableFromJson(table,obj){
+  for(var key in obj){
+    var tr = document.createElement("tr");
+    table.appendChild(tr);
+    createKeyRow(tr,key);
+    if(obj[key]){
+      createTypeRow(tr,Object.prototype.toString.call(obj[key]).replace("[object ","").replace("]",""))
+    } else {
+      createTypeRow(tr,"null")
+    }
+    if(obj[key]&&!(obj[key] instanceof Array)&&typeof obj[key]=="object"){
+      createNewTable(tr,key,obj[key])
+    } else {
+      createNewRow(tr,obj[key])
+    }
+    createDeleteRow(tr);
+  }
 }
 
 function visualizeJson(obj,path){
@@ -127,7 +194,11 @@ function visualizeJson(obj,path){
   inputAdd.type="submit";
   inputAdd.value="Add new key";
   inputAdd.onclick=function(){
-    createNewRow(table);
+    var tr = document.createElement("tr");
+    table.appendChild(tr);
+    createKeyRow(tr);
+    createNewRow(tr);
+    createDeleteRow(tr);
   }
   Add.appendChild(inputAdd);
 
@@ -143,15 +214,7 @@ function visualizeJson(obj,path){
   }
   inputSave.value="Save config";
   Save.appendChild(inputSave);
-  for(var key in obj){
-    var text2=obj[key];
-    if(typeof text2=="object"){
-      text2=JSON.stringify(obj[key]);
-    } else {
-      text2=obj[key];
-    }
-    createNewRow(table,key,text2)
-  }
+  createTableFromJson(table,obj);
 }
 
 function saveToJson(table,path){
@@ -164,6 +227,7 @@ function saveToJson(table,path){
       input2Value = trs[t].getElementsByTagName("td")[1].children[0].value;
       obj[input1Value]=input2Value;
     }catch(e){
+      console.log(e);
       continue;
     }
   }
@@ -202,6 +266,7 @@ function createDOMFile(name,parent){
             var object = JSON.parse(data);
             visualizeJson(object,projectsDir+"\\"+parent.parentElement.querySelector(".title").textContent+"\\"+name);
           } catch(e){
+            console.log(e);
             fillTextArea(data);
           }
         }

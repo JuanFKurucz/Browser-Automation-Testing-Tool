@@ -55,6 +55,13 @@
       white-space:nowrap;
       text-overflow:ellipsis;
     }
+    nav {
+    	-webkit-app-region: drag;
+    }
+
+    a{
+      -webkit-app-region: no-drag;
+    }
   </style>
 </head>
 <body>
@@ -69,8 +76,8 @@
       <li><a id="stopButton" href="#" style="cursor:not-allowed;">Stop</a></li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
-      <li><a href="#"><span class="glyphicon glyphicon-user"></span> Minimize</a></li>
-      <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Close</a></li>
+      <li><a id="MinimizeProgram" href="#">Minimize</a></li>
+      <li><a id="CloseProgram" href="#">Close</a></li>
     </ul>
     </div>
   </nav>

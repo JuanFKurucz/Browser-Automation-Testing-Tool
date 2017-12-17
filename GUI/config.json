@@ -1,8 +1,10 @@
 {
   "width":800,
-  "height":600,
+  "height":510,
   "title":"Browser Automation Testing Tool",
+  "main":"src/main.js",
   "scripts":"src/script.js",
+  "frame":false,
   "url":"index.html",
   "webPreferences":{
     "nodeIntegration":true,
