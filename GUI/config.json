@@ -2,7 +2,7 @@
   "width":800,
   "height":600,
   "title":"Browser Automation Testing Tool",
-  "scripts":"script.js",
+  "scripts":"src/script.js",
   "url":"index.html",
   "webPreferences":{
     "nodeIntegration":true,

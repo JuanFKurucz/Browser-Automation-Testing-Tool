@@ -1,8 +1,1 @@
-{
-  "width":800,
-  "height":600,
-  "title":"Example Project",
-  "scripts":"script.js",
-  "url":"https://www.google.com/",
-  "webPreferences":{}
-}
+{"width":"800","height":"600","title":"Example Project","scripts":"script.js","url":"https://www.google.com/","webPreferences":"{}"}
