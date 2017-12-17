@@ -65,14 +65,9 @@ function createDOMProject(path,name,cont){
   })
 }
 
-function createNewRow(table,text1="",text2="",index=null){
-  var container=null;
-  if(index!==null){
-    container=table.children[index];
-  }
-  console.log(container);
+function createNewRow(table,text1="",text2=""){
   var tr = document.createElement("tr");
-  table.insertBefore(tr,container);
+  table.appendChild(tr);
 
   var td1= document.createElement("td");
   tr.appendChild(td1);
@@ -121,17 +116,6 @@ function visualizeJson(obj,path){
   title.style="text-align:center;font-size:21;"
   title.setAttribute("colspan","3");
   tr.appendChild(title);
-
-  for(var key in obj){
-    var text2=obj[key];
-    if(typeof text2=="object"){
-      text2=JSON.stringify(obj[key]);
-    } else {
-      text2=obj[key];
-    }
-    createNewRow(table,key,text2)
-  }
-
   var tr = document.createElement("tr");
   table.appendChild(tr);
   var Add = document.createElement("th");
@@ -143,7 +127,7 @@ function visualizeJson(obj,path){
   inputAdd.type="submit";
   inputAdd.value="Add new key";
   inputAdd.onclick=function(){
-    createNewRow(table,"","",table.children.length-1);
+    createNewRow(table);
   }
   Add.appendChild(inputAdd);
 
@@ -159,6 +143,15 @@ function visualizeJson(obj,path){
   }
   inputSave.value="Save config";
   Save.appendChild(inputSave);
+  for(var key in obj){
+    var text2=obj[key];
+    if(typeof text2=="object"){
+      text2=JSON.stringify(obj[key]);
+    } else {
+      text2=obj[key];
+    }
+    createNewRow(table,key,text2)
+  }
 }
 
 function saveToJson(table,path){
