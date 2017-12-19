@@ -2,18 +2,20 @@ const {BrowserWindow} = require("electron");
 const {noSpace} = require("./transformName.js");
 
 const fs = require('fs');
-function generateScriptFile(title,scripts,folder,callback){
-  if(title&&scripts&&folder){
-    var text="";
-    var folderR=folder.replace(/\\/g,"\\\\");
-    if(typeof scripts != "string"){
+function generateScriptFile(data,callback){
+  if(data.window.title !== undefined&&data.scripts !== undefined&&data.window.folder !== undefined){
+    var text="document.onreadystatechange = function () {\nif (document.readyState == '"+data.runat+"') {\n";
+    text+="var globalProject=require('"+__dirname.replace(/\\/g,"\\\\")+"\\\\Projects\\\\global.js');\n"
+    var folderR=data.window.folder.replace(/\\/g,"\\\\");
+    if(typeof data.scripts != "string"){
       for(var i=0;i<scripts.length;i++){
-        text+="require('"+folderR+"\\\\"+scripts[i].replace(/\//g,"\\\\")+"');\n";
+        text+="require('"+folderR+"\\\\"+data.scripts[i].replace(/\//g,"\\\\")+"').init(globalProject);\n";
       }
     } else {
-      text+="require('"+folderR+"\\\\"+scripts.replace(/\//g,"\\\\")+"');\n";
+      text+="require('"+folderR+"\\\\"+data.scripts.replace(/\//g,"\\\\")+"').init(globalProject);\n";
     }
-    fs.writeFile(folder+"\\"+noSpace(title)+"-script.js",text, function(err) {
+    text+="}\n}";
+    fs.writeFile(data.window.folder+"\\"+noSpace(data.window.title)+"-script.js",text, function(err) {
         if(err) {
             return console.log(err);
         }
@@ -26,8 +28,8 @@ function readConfig(folderPath,callback){
   fs.readFile(folderPath+"\\config.json", 'utf8', function (err, data) {
     if (err) throw err;
     var obj=JSON.parse(data);
-    obj.folder = folderPath;
-    obj.webPreferences.preload=folderPath+"\\"+noSpace(obj.title)+"-script.js";
+    obj.window.folder = folderPath;
+    obj.window.webPreferences.preload=folderPath+"\\"+noSpace(obj.window.title)+"-script.js";
     return callback(obj);
   });
 }
@@ -43,21 +45,36 @@ function ValidURL(str) {
 }
 
 function createWindow(data){
-  let window = new BrowserWindow(data);
-  if(ValidURL(data.url)){
-    window.loadURL(data.url);
-  } else {
-    window.loadURL(data.folder+data.url);
+  let window = new BrowserWindow(data.window);
+
+  window.getConfig=data;
+
+  if(data.url){
+    if(ValidURL(data.url)){
+      window.loadURL(data.url);
+    } else {
+      window.loadURL(data.window.folder+data.url);
+    }
   }
+
+  window.on('closed', () => {
+    fs.writeFile(window.getConfig.window.folder+"\\config.json",JSON.stringify(window.getConfig), function(err) {
+        if(err) {
+            return console.log(err);
+        }
+        window = null
+    });
+  })
+
   if(data.main){
-    require(data.folder+"\\"+data.main).init(window);
+    require(data.window.folder+"\\"+data.main).init(window);
   }
 }
 
 exports.create=function(folderPath){
-  var data = readConfig(folderPath,function(data){
-    generateScriptFile(data.title,data.scripts,data.folder,function(){
-      return createWindow(data);
+  readConfig(folderPath,function(data){
+    generateScriptFile(data,function(){
+      createWindow(data);
     });
   });
 }

@@ -298,10 +298,7 @@ function searchProjects(){
     }
   })
 }
-
-document.onreadystatechange = function () {
-  if (document.readyState == "complete") {
-    init();
-    searchProjects();
-  }
+exports.init=function(){
+  init();
+  searchProjects();
 }

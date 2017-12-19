@@ -1,10 +1,15 @@
-function init(){
+function init(globalProject){
+  var config = globalProject.getConfig();
   document.write("Script is working");
+  if(config["done"]){
+    config["done"]++;
+  } else {
+    config["done"]=1;
+  }
+
+  globalProject.saveConfig(config);
 }
 
-document.onreadystatechange = function () {
-  if (document.readyState == "complete") {
-    init();
-  }
+exports.init = function(globalProject){
+  init(globalProject);
 }
-  
