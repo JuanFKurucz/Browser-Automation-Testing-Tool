@@ -31,7 +31,7 @@ function translateBattFile(path){
     if (err) throw err;
     var commands=data.split("\n");
     var c=null;
-    var code="exports.init = function(batt){\nvar o=window;\nvar doc=window.document;\n";
+    var code="exports.init = function(batt){\nvar o=window;\nvar doc=window.document;\nvar storage={};\n";
     var temp="";
     var insideString=false;
     var endWaits=[];
@@ -65,6 +65,7 @@ function translateBattFile(path){
           break;
         case "FIND":
           var action="";
+          var preaction="";
           switch(getBattTag(c[3])){
             case "CLICK":
               action=".click()"
@@ -79,11 +80,30 @@ function translateBattFile(path){
               action=".innerHTML='"+removeBattTag(c[3])+"'";
               break;
             case "SETATTR":
-              action=".='"+removeBattTag(c[3])+"'";
+              var tags=removeBattTag(c[3]).split(",");
+              action=".setAttribute('"+tags[0]+"','"+tags[1]+"');";
+              break;
+            case "GET":
+              var noTag=removeBattTag(c[3]).split(":");
+              preaction="storage['"+removeBattTag(c[4])+"']=";
+              switch(noTag[0]){
+                case "ATTR":
+                  action=".getAttribute('"+noTag[1]+"')";
+                  break;
+                case "VALUE":
+                  action=".value";
+                  break;
+                case "TEXT":
+                  action=".textContent";
+                  break;
+                case "HTML":
+                  action=".innerHTML";
+                  break;
+              }
               break;
           }
           action+=";";
-          code+='doc.querySelectorAll("'+removeBattTag(c[1])+'")['+removeBattTag(c[2])+']'+action;
+          code+=preaction+'doc.querySelectorAll("'+removeBattTag(c[1])+'")['+removeBattTag(c[2])+']'+action;
           break;
         case "EXEC":
           code+=removeBattTag(c[1]);
@@ -109,6 +129,14 @@ function translateBattFile(path){
       code+="\n";
     }
     code+="}";
+    var codeLines=code.split("\n");
+    for(var cl=0;cl<codeLines.length;cl++){
+      if(codeLines[cl].includes("[[")&&codeLines[cl].includes("]]")){
+        codeLines[cl]=codeLines[cl].replace(/\[\[/g,"'+storage[");
+        codeLines[cl]=codeLines[cl].replace(/\]\]/g,"]+'");
+      }
+    }
+    code=codeLines.join("\n");
     fs.writeFile(path.replace(".batt","-translated.js"),code, function(err) {
         if(err) {
             return console.log(err);
