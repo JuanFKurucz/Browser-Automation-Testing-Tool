@@ -1,18 +1,1 @@
-{
-  "main":"src/main.js",
-
-  "scripts":"src/script.js",
-  "runat":"complete",
-  "url":"index.html",
-
-  "window":{
-    "width":800,
-    "height":510,
-    "title":"Browser Automation Testing Tool",
-    "frame":false,
-    "webPreferences":{
-      "nodeIntegration":true,
-      "nodeIntegrationInWorker":true
-    }
-  }
-}
+{"main":"src/main.js","scripts":"src/script.js","runat":"complete","url":"index.html","window":{"width":800,"height":510,"title":"Browser Automation Testing Tool","frame":false,"webPreferences":{"nodeIntegration":true,"nodeIntegrationInWorker":true,"preload":"E:\\GitHub\\Browser-Automation-Testing-Tool\\GUI\\\\Browser-Automation-Testing-Tool-script.js"},"folder":"E:\\GitHub\\Browser-Automation-Testing-Tool\\GUI\\"}}

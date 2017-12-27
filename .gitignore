@@ -1,6 +1,6 @@
-music.json
-Projects/
-
+Projects/*
+!Projects/Example Project/
+!Projects/Example Batt Project/
 # Logs
 logs
 *.log
