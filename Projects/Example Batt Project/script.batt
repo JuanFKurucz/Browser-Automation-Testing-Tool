@@ -1,4 +1,4 @@
-WAITFOR QUERYS="input" CANCEL=true TIMER=1000
-  FIND QUERY="input" POS=0 VALUE="Example project"
+WAITFOR QUERYS="input"
+  FIND QUERY="input" VALUE="Example project"
   FIND QUERY="input" POS=1 CLICK
 END WAITFOR

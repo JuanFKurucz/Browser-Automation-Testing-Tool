@@ -1,12 +1,13 @@
 var window=require('electron').remote.getCurrentWindow();
 function getProjectConfig(){
+  console.log(window.getConfig);
   return window.getConfig;
 }
 function saveProjectConfig(config){
   window.getConfig=config;
 }
 
-function findElement(doc,query,pos=0){
+function findElement(doc,query,pos){
   return doc.querySelectorAll(query)[pos];
 }
 
@@ -114,4 +115,7 @@ exports.waitForElements=function(){
 }
 exports.controlDocumentReadyState=function(doc,at,callback){
   controlReadyState(doc,at,callback);
+}
+exports.findElement=function(doc,query,pos=0){
+  return findElement(doc,query,pos)
 }

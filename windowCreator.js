@@ -31,7 +31,7 @@ function translateBattFile(path){
     if (err) throw err;
     var commands=data.split("\n");
     var c=null;
-    var code="exports.init = function(batt){\nvar o=window;\nvar doc=window.document;\nvar storage={};\n";
+    var code="exports.init = function(batt){\nvar o=window;\nvar doc=window.document;\nvar storage=batt.getConfig();\n";
     var temp="";
     var insideString=false;
     var endWaits=[];
@@ -59,33 +59,42 @@ function translateBattFile(path){
       }
       switch(c[0]){
         case "WAITFOR":
-          code+='batt.waitForElements(o,["'+removeBattTag(c[1]).split(',').join('","')+'"],'+
-                  removeBattTag(c[2])+','+
-                  removeBattTag(c[3])+',function(o,doc){';
+          code+='batt.waitForElements(o,["'+removeBattTag(c[1]).split(',').join('","')+'"]';
+          if(c.length>=3){
+            code+=','+removeBattTag(c[2]);
+          }
+          if(c.length>=4){
+            code+=','+(parseFloat(removeBattTag(c[3]))*1000);
+          }
+          code+=',function(o,doc){';
           break;
         case "FIND":
+          var index=0;
+          if(getBattTag(c[2])!="POS"){
+            index=-1;
+          }
           var action="";
           var preaction="";
-          switch(getBattTag(c[3])){
+          switch(getBattTag(c[3+index])){
             case "CLICK":
               action=".click()"
               break;
             case "VALUE":
-              action=".value='"+removeBattTag(c[3])+"'";
+              action=".value='"+removeBattTag(c[3+index])+"'";
               break;
             case "TEXT":
-              action=".textContent='"+removeBattTag(c[3])+"'";
+              action=".textContent='"+removeBattTag(c[3+index])+"'";
               break;
             case "HTML":
-              action=".innerHTML='"+removeBattTag(c[3])+"'";
+              action=".innerHTML='"+removeBattTag(c[3+index])+"'";
               break;
             case "SETATTR":
-              var tags=removeBattTag(c[3]).split(",");
+              var tags=removeBattTag(c[3+index]).split(",");
               action=".setAttribute('"+tags[0]+"','"+tags[1]+"');";
               break;
             case "GET":
-              var noTag=removeBattTag(c[3]).split(":");
-              preaction="storage['"+removeBattTag(c[4])+"']=";
+              var noTag=removeBattTag(c[3+index]).split(":");
+              preaction="storage['battStorage']['"+removeBattTag(c[4+index])+"']=";
               switch(noTag[0]){
                 case "ATTR":
                   action=".getAttribute('"+noTag[1]+"')";
@@ -103,7 +112,14 @@ function translateBattFile(path){
               break;
           }
           action+=";";
-          code+=preaction+'doc.querySelectorAll("'+removeBattTag(c[1])+'")['+removeBattTag(c[2])+']'+action;
+
+          if(getBattTag(c[2])=="POS"){
+            code+=preaction+"doc.querySelectorAll('"+removeBattTag(c[1])+"')["+parseInt(removeBattTag(c[2]))+"]";
+          } else {
+            code+=preaction+"doc.querySelector('"+removeBattTag(c[1])+"')";
+          }
+          code+=action+"\n";
+          code+='batt.saveConfig(storage);';
           break;
         case "EXEC":
           code+=removeBattTag(c[1]);
@@ -114,6 +130,21 @@ function translateBattFile(path){
           break;
         case "CLOSE":
           code+="window.close();";
+          break;
+        case "GO":
+          code+="window.location.href='"+removeBattTag(c[1])+"';"
+          break;
+        case "STORAGE":
+          var variableData=removeBattTag(c[1]);
+          switch(getBattTag(c[1])){
+            case "SET":
+              code+="storage['battStorage']['"+removeBattTag(c[1]).split(":")[0]+"']='"+removeBattTag(c[1]).split(":")[1]+"';\n";
+              break;
+            case "CLEAN":
+              code+="delete storage['battStorage']['"+removeBattTag(c[1])+"'];\n";
+              break;
+          }
+          code+'batt.saveConfig(storage);';
           break;
         case "END":
           switch(getBattTag(c[1])){
@@ -132,8 +163,8 @@ function translateBattFile(path){
     var codeLines=code.split("\n");
     for(var cl=0;cl<codeLines.length;cl++){
       if(codeLines[cl].includes("[[")&&codeLines[cl].includes("]]")){
-        codeLines[cl]=codeLines[cl].replace(/\[\[/g,"'+storage[");
-        codeLines[cl]=codeLines[cl].replace(/\]\]/g,"]+'");
+        codeLines[cl]=codeLines[cl].replace(/\[\[/g,"'+storage['battStorage']['");
+        codeLines[cl]=codeLines[cl].replace(/\]\]/g,"']+'");
       }
     }
     code=codeLines.join("\n");
@@ -181,6 +212,9 @@ function readConfig(folderPath,callback){
     if (err) throw err;
     var obj=JSON.parse(data);
     obj.window.folder = folderPath;
+    if(!("battStorage" in obj)){
+      obj.battStorage={};
+    }
     obj.window.webPreferences.preload=folderPath+"\\"+noSpace(obj.window.title)+"-script.js";
     return callback(obj);
   });
@@ -208,25 +242,12 @@ function createWindow(data){
       window.loadURL(data.window.folder+"\\"+data.url);
     }
   }
-  if(window.getConfig.window.folder!=undefined){
-    window.on('closed', () => {
-      //window.webContents.session.clearCache(function(){
-        fs.writeFile(window.getConfig.window.folder+"\\config.json",JSON.stringify(window.getConfig), function(err) {
-            if(err) {
-                return console.log(err);
-            }
-            window = null;
-
-        });
-      //});
-    })
-  } else {
-    window.on('closed', () => {
-      window.webContents.session.clearCache(function(){
-        window = null;
-      });
+  window.on('closed', () => {
+    var configData=window.getConfig;
+    fs.writeFile(configData.window.folder+"\\config.json",JSON.stringify(configData),function(){
+      window=null;
     });
-  }
+  })
 
   if(data.main!=undefined){
     require(data.window.folder+"\\"+data.main).init(window);
