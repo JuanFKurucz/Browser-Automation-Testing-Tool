@@ -1,3 +1,4 @@
 WAITFOR DOCUMENT=window QUERYS="input" CANCEL=true TIMER=1000
-FIND QUERY="input" POS=0 VALUE="Example project"
-FIND QUERY="input" POS=1 CLICK
+  FIND QUERY="input" POS=0 VALUE="Example project"
+  FIND QUERY="input" POS=1 CLICK
+END WAITFOR
