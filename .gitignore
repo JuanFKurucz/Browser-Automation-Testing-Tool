@@ -1,6 +1,7 @@
 Projects/*
 !Projects/Example Project/
 !Projects/Example Batt Project/
+!Projects/global.js
 # Logs
 logs
 *.log
