@@ -37,6 +37,7 @@ exports.saveConfig=function(config){
   saveProjectConfig(config);
 }
 exports.waitForElements=function(){
+  var objects=[];
   var parentDoc = arguments[0];
   var querys = arguments[1];
   var cancel = null;
@@ -65,6 +66,7 @@ exports.waitForElements=function(){
   var working=true;
   var i=0;
 	let waiting=setInterval(function(){
+    objects=[];
     if(parentDoc.document != undefined){
       doc=parentDoc.document;
     } else {
@@ -79,7 +81,7 @@ exports.waitForElements=function(){
     } else {
   		for(i=0;i<querys.length;i++){
         console.log(doc,doc.querySelector(querys[i]),querys[i]);
-  			if(doc.querySelector(querys[i])==undefined){
+  			if(doc.querySelectorAll(querys[i])==undefined){
   				working=false;
   				break;
   			} else{
@@ -87,6 +89,8 @@ exports.waitForElements=function(){
             if(!doc.querySelector(querys[i]).complete){
               working=false;
       				break;
+            } else {
+              objects.push(doc.querySelector(querys[i]));
             }
           } else if(doc.querySelector(querys[i]).tagName=="IFRAME"){
             if(doc.querySelector(querys[i]).contentWindow.document.readyState!="complete"){
@@ -94,7 +98,10 @@ exports.waitForElements=function(){
       				break;
             } else {
               parentDoc=doc.querySelector(querys[i]);
+              objects.push(doc.querySelector(querys[i]));
             }
+          } else {
+            objects.push(doc.querySelector(querys[i]));
           }
         }
   		}
@@ -109,7 +116,7 @@ exports.waitForElements=function(){
       } else {
         what=parentDoc.contentWindow.document;
       }
-			callback(parentDoc,what);
+			callback(parentDoc,what,objects);
 		}
 	},timer);
 }
