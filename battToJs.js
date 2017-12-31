@@ -33,7 +33,6 @@ function getBattTag(command){
   if(result!=result.toUpperCase()){
     result=false;
   }
-  //console.log(result,getGenericTag(result));
   return getGenericTag(result);
 }
 function separateCommandLine(commandline){
@@ -153,7 +152,6 @@ function findBitwiseOperator(separator){
 
 function translationHandler(c){
   var code="";
-  console.log(c[0],getBattTag(c[0]),c)
   switch(getBattTag(c[0])){
     case "FUNCTION":
       //FUNCTION NAME PARAMS="asd,asd,sdf"
@@ -346,7 +344,6 @@ function getGenericTag(tag){
 }
 
 function translationToGenericLanguage(c){
-  console.log(c);
   var newC=c;
   var tag=null;
   try{
@@ -360,8 +357,6 @@ function translationToGenericLanguage(c){
   } catch(e){
     console.log(e);
   }
-  console.log(newC);
-  console.log("=");
   return newC;
 }
 
