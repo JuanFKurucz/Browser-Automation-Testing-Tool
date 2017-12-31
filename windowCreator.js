@@ -47,15 +47,17 @@ function generateScriptFile(data,callback){
   }
 }
 
-function readConfig(folderPath,callback){
+function readConfig(folderPath,callback,creation=true){
   fs.readFile(folderPath+"\\config.json", 'utf8', function (err, data) {
     if (err) throw err;
     var obj=JSON.parse(data);
-    obj.window.folder = folderPath;
-    if(!("battStorage" in obj)){
-      obj.battStorage={};
+    if(creation){
+      obj.window.folder = folderPath;
+      if(!("battStorage" in obj)){
+        obj.battStorage={};
+      }
+      obj.window.webPreferences.preload=folderPath+"\\"+noSpace(obj.window.title)+"-script.js";
     }
-    obj.window.webPreferences.preload=folderPath+"\\"+noSpace(obj.window.title)+"-script.js";
     return callback(obj);
   });
 }
@@ -89,13 +91,17 @@ function createWindow(data){
     });
   })
   if(data.popup!=undefined){
+    var showPopup=true;
+    if(data.popupshow!=undefined && data.popupshow==false){
+      showPopup=false;
+    }
     window.webContents.on('new-window', (event, url) => {
       event.preventDefault()
       const defaultWin=new BrowserWindow(
         {
           width: 800,
           height: 600,
-          show:true,
+          show:showPopup,
           webPreferences:{
             preload:data.window.folder+"\\"+noSpace(data.window.title)+"-popups-script.js",
             "nodeIntegration":false,
@@ -111,6 +117,9 @@ function createWindow(data){
     require(data.window.folder+"\\"+data.main).init(window);
   }
   return window;
+}
+exports.readConfig=function(path,callback){
+  readConfig(path,callback);
 }
 exports.create=function(project,callback=null){
   readConfig(project,function(data){

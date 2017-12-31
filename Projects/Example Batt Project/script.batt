@@ -1,4 +1,4 @@
 SEARCH QUERYS="input[type=\'text'\],input[type=\'submit\']"
-  ELEMENTS VALUE="Example project"
+  ELEMENTS SET="VALUE:Example project"
   ELEMENTS POS=1 CLICK
 END SEARCH

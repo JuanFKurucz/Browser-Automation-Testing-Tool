@@ -50,6 +50,7 @@ function createDOMProject(path,name,cont){
 
   var newList = document.createElement("ul");
   newList.setAttribute("class","list files");
+  newList.style.display="none";
   newDiv.appendChild(newList);
 
   newDiv.addEventListener('click', function (e) {
