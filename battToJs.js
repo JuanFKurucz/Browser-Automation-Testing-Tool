@@ -153,6 +153,7 @@ function findBitwiseOperator(separator){
 
 function translationHandler(c){
   var code="";
+  console.log(c[0],getBattTag(c[0]),c)
   switch(getBattTag(c[0])){
     case "FUNCTION":
       //FUNCTION NAME PARAMS="asd,asd,sdf"
@@ -175,14 +176,18 @@ function translationHandler(c){
       }
       code+='){';
       break;
-    case "FOR":
-      //FOR I=0 TO I=100 STEPS=1
-      var variableName=c[1].split("=")[0];
-      code+="for( var "+c[1]+";"+variableName+"<="+parseInt(c[3].split("=")[1])+";"+variableName+"+="+parseInt(c[4].split("=")[1])+"){";
-      break;
     case "FOREACH":
       //FOREACH ELEMENT IN ELEMENTS
       code+="for( var "+c[1]+" in "+c[3]+"){";
+      break;
+    case "FOR":
+      //FOR I=0 TO I=100 STEPS=1
+      var variableName=c[1].split("=")[0];
+      var range=c[3].split("=")[1];
+      if(!isNaN(range)){
+        range=parseInt(range);
+      }
+      code+="for( var "+c[1]+";"+variableName+"<="+range+";"+variableName+"+="+parseInt(c[4].split("=")[1])+"){";
       break;
     case "SEARCH":
       code+='batt.waitForElements(o,["'+removeBattTag(c[1]).split(',').join('","')+'"]';
@@ -328,9 +333,13 @@ function replaceBattTag(command,tag){
 
 
 function getGenericTag(tag){
+  var list=[];
   for(var key in dictionary){
-    if(dictionary[key].indexOf(tag)!=-1){
-      return key;
+    list=dictionary[key].split(",");
+    for(var l=0;l<list.length;l++){
+      if(list[l]==tag){
+        return key;
+      }
     }
   }
   return null;
