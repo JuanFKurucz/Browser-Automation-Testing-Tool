@@ -80,28 +80,29 @@ exports.waitForElements=function(){
       }
     } else {
   		for(i=0;i<querys.length;i++){
-        console.log(doc,doc.querySelector(querys[i]),querys[i]);
-  			if(doc.querySelectorAll(querys[i])==undefined){
+        var elementExist=doc.querySelector(querys[i]);
+        console.log(doc,elementExist,querys[i]);
+  			if(elementExist==null){
   				working=false;
   				break;
   			} else{
-          if(doc.querySelector(querys[i]).tagName=="IMG"){
-            if(!doc.querySelector(querys[i]).complete){
+          if(elementExist.tagName=="IMG"){
+            if(!elementExist.complete){
               working=false;
       				break;
             } else {
-              objects.push(doc.querySelector(querys[i]));
+              objects.push(elementExist);
             }
-          } else if(doc.querySelector(querys[i]).tagName=="IFRAME"){
-            if(doc.querySelector(querys[i]).contentWindow.document.readyState!="complete"){
+          } else if(elementExist.tagName=="IFRAME"){
+            if(elementExist.contentWindow.document.readyState!="complete"){
               working=false;
       				break;
             } else {
-              parentDoc=doc.querySelector(querys[i]);
-              objects.push(doc.querySelector(querys[i]));
+              parentDoc=elementExist;
+              objects.push(elementExist);
             }
           } else {
-            objects.push(doc.querySelector(querys[i]));
+            objects.push(elementExist);
           }
         }
   		}
