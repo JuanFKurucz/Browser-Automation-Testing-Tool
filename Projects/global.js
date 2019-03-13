@@ -36,7 +36,7 @@ exports.getConfig=function(){
 exports.saveConfig=function(config){
   saveProjectConfig(config);
 }
-exports.waitForElements=function(){
+exports.waitForElements=async function(){
   var objects=[];
   var parentDoc = arguments[0];
   var querys = arguments[1];
@@ -48,7 +48,6 @@ exports.waitForElements=function(){
   if(arguments.length>=5){
     timer = arguments[3];
   }
-  var callback=arguments[arguments.length-1];
   if(timer==null||timer==undefined){
     timer=1000;
   }
@@ -65,61 +64,62 @@ exports.waitForElements=function(){
   console.log("querys: "+querys);
   var working=true;
   var i=0;
-	let waiting=setInterval(function(){
-    objects=[];
-    if(parentDoc.document != undefined){
-      doc=parentDoc.document;
-    } else {
-      doc=parentDoc.contentWindow.document;
-    }
-		working=true;
-    if(typeof querys == "string"){
-      console.log(doc,doc.querySelector(querys),querys);
-      if(doc.querySelector(querys)==undefined){
-        working=false;
-      }
-    } else {
-  		for(i=0;i<querys.length;i++){
-        var elementExist=doc.querySelector(querys[i]);
-        console.log(doc,elementExist,querys[i]);
-  			if(elementExist==null){
-  				working=false;
-  				break;
-  			} else{
-          if(elementExist.tagName=="IMG"){
-            if(!elementExist.complete){
-              working=false;
-      				break;
-            } else {
-              objects.push(elementExist);
-            }
-          } else if(elementExist.tagName=="IFRAME"){
-            if(elementExist.contentWindow.document.readyState!="complete"){
-              working=false;
-      				break;
-            } else {
-              parentDoc=elementExist;
-              objects.push(elementExist);
-            }
-          } else {
-            objects.push(elementExist);
-          }
-        }
-  		}
-    }
-		if(working){
-      if(cancel){
-        clearInterval(waiting);
-      }
-      var what=null;
+
+  return await new Promise((resolve,reject ) => {
+  	let waiting=setInterval(function(){
+      objects=[];
       if(parentDoc.document != undefined){
-        what=parentDoc.document;
+        doc=parentDoc.document;
       } else {
-        what=parentDoc.contentWindow.document;
+        doc=parentDoc.contentWindow.document;
       }
-			callback(parentDoc,what,objects);
-		}
-	},timer);
+  		working=true;
+      if(typeof querys == "string"){
+        if(doc.querySelector(querys)==undefined){
+          working=false;
+        }
+      } else {
+    		for(i=0;i<querys.length;i++){
+          var elementExist=doc.querySelector(querys[i]);
+    			if(elementExist==null){
+    				working=false;
+    				break;
+    			} else{
+            /*if(elementExist.tagName=="IMG"){
+              if(!elementExist.complete){
+                working=false;
+        				break;
+              } else {
+                objects.push(elementExist);
+              }
+            } else if(elementExist.tagName=="IFRAME"){
+              if(elementExist.contentWindow.document.readyState!="complete"){
+                working=false;
+        				break;
+              } else {
+                parentDoc=elementExist;
+                objects.push(elementExist);
+              }
+            } else {
+              objects.push(elementExist);
+            }
+          }*/
+    		}
+      }
+  		if(working){
+        if(cancel){
+          clearInterval(waiting);
+        }
+        var what=null;
+        if(parentDoc.document != undefined){
+          what=parentDoc.document;
+        } else {
+          what=parentDoc.contentWindow.document;
+        }
+        resolve(objects);
+  		}
+  	},timer);
+  });
 }
 exports.controlDocumentReadyState=function(doc,at,callback){
   controlReadyState(doc,at,callback);

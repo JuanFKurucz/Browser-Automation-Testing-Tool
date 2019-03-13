@@ -104,7 +104,7 @@ function createWindow(data){
           show:showPopup,
           webPreferences:{
             preload:data.window.folder+"\\"+noSpace(data.window.title)+"-popups-script.js",
-            "nodeIntegration":false,
+            "node-integration": false,
             "webSecurity":false,
             "allowRunningInsecureContent":true
           }
